@@ -108,6 +108,7 @@ func (d *deck) FetchOrStorage(ctx context.Context, taskId int, ops ...Option) <-
 
 			close(channel)
 			d.store.Delete(taskId)
+			d.loggerInfo("Delete task message", "task_id", taskId)
 		}
 	}(ctx, taskId)
 
