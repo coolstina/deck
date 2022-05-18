@@ -106,6 +106,11 @@ func (d *deck) FetchOrStorage(ctx context.Context, taskId int, ops ...Option) <-
 				channel <- e.Value
 			}
 
+			if options.notification {
+				channel <- struct{}{}
+				d.loggerInfo("FetchOrStorage done sent notification")
+			}
+
 			close(channel)
 			d.store.Delete(taskId)
 			d.loggerInfo("Delete task message", "task_id", taskId)

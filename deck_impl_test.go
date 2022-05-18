@@ -203,6 +203,42 @@ func (suite *DeckerSuite) Test_Enqueue_FetchOrStorage_WithStorageAndInterval() {
 	}
 }
 
+func (suite *DeckerSuite) Test_FetchOrStorage_WithDoneNotification() {
+	taskId := 3
+	suite.decker.Enqueue(taskId,
+		sms{TaskId: taskId, UserId: 1, Message: "helloworld1"},
+		sms{TaskId: taskId, UserId: 2, Message: "helloworld2"},
+		sms{TaskId: taskId, UserId: 3, Message: "helloworld3"},
+		sms{TaskId: taskId, UserId: 4, Message: "helloworld4"},
+		sms{TaskId: taskId, UserId: 5, Message: "helloworld5"},
+		sms{TaskId: taskId, UserId: 1, Message: "helloshaohua1"},
+		sms{TaskId: taskId, UserId: 2, Message: "helloshaohua2"},
+		sms{TaskId: taskId, UserId: 3, Message: "helloshaohua3"},
+		sms{TaskId: taskId, UserId: 4, Message: "helloshaohua4"},
+		sms{TaskId: taskId, UserId: 5, Message: "helloshaohua5"},
+	)
+
+	l := suite.decker.Len(taskId)
+	assert.Equal(suite.T(), 10, l)
+
+	var r = make([]sms, 0)
+	options := []Option{
+		WithInterval(400 * time.Millisecond),
+		WithReceiveDoneNotification(true),
+	}
+	for i := range suite.decker.FetchOrStorage(context.Background(), taskId, options...) {
+		fmt.Printf("Receiver: %+v\n", i)
+		smsR, ok := i.(sms)
+		if ok {
+			r = append(r, smsR)
+		} else {
+			_, ok := i.(struct{})
+			assert.Equal(suite.T(), true, ok)
+		}
+	}
+	assert.Len(suite.T(), r, 10)
+}
+
 func StorageToFilesystem() (Storage, *bytes.Buffer) {
 	var buffer = &bytes.Buffer{}
 

@@ -27,9 +27,10 @@ func (o OptionFunc) apply(option *option) {
 }
 
 type option struct {
-	storage    Storage
-	interval   time.Duration
-	showLogger bool
+	storage      Storage
+	interval     time.Duration
+	notification bool
+	showLogger   bool
 }
 
 func WithStorage(storage Storage) OptionFunc {
@@ -41,5 +42,11 @@ func WithStorage(storage Storage) OptionFunc {
 func WithInterval(interval time.Duration) OptionFunc {
 	return func(option *option) {
 		option.interval = interval
+	}
+}
+
+func WithReceiveDoneNotification(receive bool) OptionFunc {
+	return func(option *option) {
+		option.notification = receive
 	}
 }
